@@ -1,0 +1,21 @@
+---
+- hosts: all
+  connection: local
+  
+  vars_files:
+    - homebrew_packages.yml
+
+  roles:
+   - role: geerlingguy.homebrew
+     tags: ["homebrew"]
+
+  tasks:
+    - shell: brew info --json=v1 jq | jq '.[0]["installed"][0]["version"]'
+      register: installed_version
+    - name: Return Value of jq-Package Install
+      debug:
+        # the result is a string with escaped quotes at the end and at the beginning
+        # eg "\"7.1.33_4\"" with [1:-1] we strip the first
+        # and the last character: 
+        # eg "7.1.33_4"
+        msg: "{{installed_version.stdout[1:-1]}}"
